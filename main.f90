@@ -206,18 +206,18 @@ end if
 
 contains
 
-   subroutine generar_html_errores(numErrores, errores)
+    subroutine generar_html_errores(numErrores, errores)
         implicit none
         integer, intent(in) :: numErrores
         type(ErrorInfo), intent(in) :: errores(numErrores)
         character(len=100000) :: html_content
-        character(len=100) :: str_descripcion, str_columna, str_linea,char_error
+        character(len=100) :: str_descripcion, str_columna, str_linea, char_error, str_num
 
         integer :: file_unit, ios, i
 
         ! Si hay errores, se crea el archivo HTML
-       if (numErrores > 0) then
-    ! Abrir el archivo para escribir
+        if (numErrores > 0) then
+            ! Abrir el archivo para escribir
             open(unit=file_unit, file="errores.html", status="replace", action="write", iostat=ios)
             if (ios /= 0) then
                 print *, "Error al crear el archivo HTML."
@@ -225,28 +225,29 @@ contains
                 ! Escribir la cabecera del HTML directamente al archivo
                 write(file_unit, '(A)') '<!DOCTYPE html>' // new_line('a')
                 write(file_unit, '(A)') '<html><head><style>' // new_line('a')
-                write(file_unit, '(A)') 'table { font-family: Arial, sans-serif;'
+                write(file_unit, '(A)') 'table { font-family: Arial, sans-serif;' // new_line('a')
                 write(file_unit, '(A)') 'border-collapse: collapse; width: 100%; }' // new_line('a')
                 write(file_unit, '(A)') 'td, th { border: 1px solid #dddddd; text-align: left; padding: 8px; }' // new_line('a')
                 write(file_unit, '(A)') 'tr:nth-child(even) { background-color: #f2f2f2; }' // new_line('a')
                 write(file_unit, '(A)') '</style></head><body><h2>Tabla de Errores</h2>' // new_line('a')
-                write(file_unit, '(A)') '<table><tr><th>Carácter</th><th>Descripcion' 
-                write(file_unit, '(A)') '</th><th>Columna</th><th>Línea</th></tr>' // new_line('a')
+                
+                ! Escribir encabezado de la tabla
+                write(file_unit, '(A)') '<table><tr><th>No.</th><th>Carácter</th>' // new_line('a') // &
+                                         '<th>Descripcion</th><th>Columna</th><th>Línea</th></tr>' // new_line('a')
 
-                ! Bucle para formatear cada código ASCII y cada columna
-
-                ! Bucle para agregar filas a la tabla
+                ! Bucle para agregar filas numeradas a la tabla
                 do i = 1, numErrores
+                    write(str_num, '(I0)') i
                     write(str_descripcion, '(A)') trim(errores(i)%descripcion)
                     write(str_columna, '(I0)') errores(i)%columna
-                    write(str_linea, '(I0)')  errores(i)%linea
+                    write(str_linea, '(I0)') errores(i)%linea
                     write(char_error, '(A)') trim(errores(i)%caracter)
-         
-                    ! Escribir cada fila directamente al archivo
 
-                    write(file_unit, '(A)') '<tr><td>' // char_error // '</td><td>' // trim(str_descripcion) // & 
-                    '</td><td>' // trim(str_columna) // '</td><td>'&
-                     // trim(str_linea) // '</td></tr>' // new_line('a')
+                    ! Escribir cada fila numerada al archivo HTML
+                    write(file_unit, '(A)') '<tr><td>' // str_num // '</td><td>' // char_error // &
+                                             '</td><td>' // trim(str_descripcion) // '</td><td>' // &
+                                             trim(str_columna) // '</td><td>' // trim(str_linea) // &
+                                             '</td></tr>' // new_line('a')
                 end do
 
                 ! Cerrar la tabla y el HTML
@@ -265,5 +266,7 @@ contains
 
         write(str, '(I0)') num  ! Convierte el entero 'num' a cadena
     end function itoa
+
+
 
 end program analizador_lexico
