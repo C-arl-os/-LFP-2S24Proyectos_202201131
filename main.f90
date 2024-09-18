@@ -1,7 +1,8 @@
 program analizador_lexico
     implicit none
-    integer :: i, len, linea, columna, estado, puntero, numErrores, file_unit, ios
+    integer :: i, len, linea, columna, estado, puntero, numErrores, file_unit, ios,numToken, columnaToken
     integer :: espacio_texto
+    logical :: cadena, porcentaje !esta se utilizara para separa el contexto de : y %
      ! Definición de un tipo que almacena la información del error
     type :: ErrorInfo
         character(len=10) :: caracter  ! caracter
@@ -10,20 +11,43 @@ program analizador_lexico
         integer :: linea        ! Línea donde ocurrió el error
     end type ErrorInfo
 
+    ! Definición de un tipo que almacena la información de un token
+    type :: TokenType
+        character(len=200) :: lexema
+        character(len=100) :: tipo_lexema
+        integer :: linea
+        integer :: columna
+    end type TokenType
+
+    ! Definición de un tipo que almacena la información de los tokens para las palabras reservadas
+    type :: tokensA
+        character(len=100) :: lexema
+    end type tokensA
+
+    ! Declaración de un arreglo de tokens de tipo TokenType
+    type(TokenType), dimension(1000) :: tokens
+
+    ! Declaración de un arreglo de tokens de tipo tokensAprobados
+    type(tokensA), dimension(7) :: tokensAprobados
+
+
     ! Declaración de un arreglo de errores de tipo ErrorInfo
     type(ErrorInfo), dimension(100) :: errores
     character(len=1) :: char 
     character(len=100) :: tkn
     character(len=1), dimension(26) :: A 
     character(len=1), dimension(26) :: M
-    character(len=1), dimension(3) :: S 
+    !character(len=1), dimension(1) :: D 
+    !character(len=1), dimension(1) :: P 
+    !character(len=1), dimension(1) :: Y
+    !character(len=1), dimension(1) :: C 
+ 
     character(len=1), dimension(10) :: N
     character(len=1) :: char_error
-
+    !type(TokenType), dimension(5) :: T
     character(len=10000) :: buffer, contenido
     character(len=10) :: str_codigo_ascii, str_columna, str_linea
     ! Variables para el archivo HTML
-
 
     contenido = ''  ! Inicializa contenido vacío
 
@@ -37,16 +61,27 @@ program analizador_lexico
 
     A = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
     M = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-    S = [':','{','%']
+    !S = ['%','&','*','+',',','-', '.', '/', ';', '<', '=', '>', '?', '@', '[', '\', ']', '^', '_', '`', '{', '|', '}', '~']
     N = ['1','2','3','4','5','6','7','8','9','0']
-    ! T = ['grafica','nombre'
-    ! tokens definidos 
+
+    !guardamos en tokensAprobados las palabras reservadas
+    tokensAprobados(1)%lexema = 'grafica'
+    tokensAprobados(2)%lexema = 'nombre'
+    tokensAprobados(3)%lexema = 'continente'
+    tokensAprobados(4)%lexema = 'pais'
+    tokensAprobados(5)%lexema = 'poblacion'
+    tokensAprobados(6)%lexema = 'saturacion'
+    tokensAprobados(7)%lexema = 'bandera'
 
     estado = 0
     puntero = 1
     columna = 1
+    columnaToken = 0
     linea = 1
     numErrores = 0
+    numToken = 0    
+    cadena = .FALSE.
+    porcentaje = .FALSE.
     tkn = ''
 
     len = len_trim(contenido) 
@@ -67,25 +102,83 @@ program analizador_lexico
             ! espacio en blanco
             columna = columna + 1
             puntero = puntero + 1
+            numToken = numToken + 1
+            tokens(numToken) = TokenType(' ', 'Espacio', linea, columna)
         elseif (ichar(char) == 59) then
+            !punto y coma
+            if (porcentaje .eqv. .TRUE.) then
+                numToken = numToken + 1
+                tokens(numToken) = TokenType(tkn, 'Cadena de Numeros', linea, columna)
+                porcentaje = .FALSE.
+            else if (tkn .eq. '') then
+
+            else
+                numToken = numToken + 1
+                tokens(numToken) = TokenType(tkn, 'Cadena', linea, columnaToken)
+            end if
             columna = columna + 1
+            numToken = numToken + 1
+            tokens(numToken) = TokenType(';', 'Punto y coma', linea, columna)
             estado = 0
             puntero = puntero + 1
-        elseif (ichar(char) == 125) then
+        else if (ichar(char) == 125) then
+            !llave de cierre
             columna = columna + 1
-            estado = 0
             puntero = puntero + 1
+            numToken = numToken + 1
+            tokens(numToken) = TokenType('}', 'Cierra Llave', linea, columna)
+            estado = 0
+        else if (ichar(char) == 123) then
+            !abrir llave
+            columna = columna + 1
+            puntero = puntero + 1
+            numToken = numToken + 1
+            tokens(numToken) = TokenType('{', 'Abre Llave', linea, columna)
+            estado = 0
+        else if (ichar(char) == 58) then !aqui debe guardar un token palabra reservada
+            !dos puntos
+            if (cadena .eqv. .TRUE.) then
+                columna = columna + 1
+                tkn = trim(tkn) // char
+                estado = 3
+            else
+                numToken = numToken + 1
+                do i = 1, size(tokensAprobados)
+                    if (trim(tokensAprobados(i)%lexema) == trim(tkn)) then
+                        tokens(numToken) = TokenType(tkn, 'Palabra Reservada', linea, columnaToken)
+                        exit
+                    end if
+                end do
+                columna = columna + 1
+                numToken = numToken + 1
+                tokens(numToken) = TokenType(':', 'Dos Puntos', linea, columna)
+                estado = 2
+                tkn = ''    !reiniciamos el tkn luego de agregarlo
+
+            end if
+            puntero = puntero + 1
+        else if (ichar(char) == 37) then ! aqui debe guardar una cadena de numeros
+            !porcentaje
+            numToken = numToken + 1
+            tokens(numToken) = TokenType(tkn, 'Cadena de Numeros', linea, columna)
+            columna = columna + 1
+            numToken = numToken + 1
+            tokens(numToken) = TokenType('%', 'Por ciento', linea, columna)
+            puntero = puntero + 1
+            estado = 0
+            porcentaje = .FALSE.
+            tkn = ''
         else
             select case (estado)
                 case (0)
                     if (any(char == M)) then
                         estado = 1
                         columna = columna + 1
-                        tkn = trim(tkn) // char
+                        tkn = char! Inicia la cadena de caracteres
+                        columnaToken = columna   !se setea la columna donde empieza el token
                 
                     else
                         numErrores = numErrores + 1
-                    
                         columna = columna + 1
                         estado = 1
                         errores(numErrores) = ErrorInfo(char, "Error no pertenece al lenguaje M estado 0", columna, linea)
@@ -98,19 +191,8 @@ program analizador_lexico
                     
                         estado = 1
                         columna = columna + 1
-                        tkn = trim(tkn) // char
+                        tkn = trim(tkn) // char ! Agrega el caracter a la cadena
                     
-                    else if (any(char == S)) then
-                        ! numErrores = numErrores + 1
-                        ! errores(numErrores) = ErrorInfo(tkn, "tkn", columna, linea)
-                        ! if (tkn == "grafica")then
-                        !      print *, "si es igual"
-                        ! end if
-                        !! LA PARTE DE ARRIBA ES PARA VALIDAR EL TOKEN 
-                        columna = columna + 1
-                        estado = 2
-                        ! agregar a tabla de tokens el tkn y el char
-                        tkn = ""
                     else
                         numErrores = numErrores + 1
                         errores(numErrores) = ErrorInfo(char, "caracter no pertecene a S O M estado 1", columna, linea)
@@ -119,42 +201,23 @@ program analizador_lexico
                     end if
                     puntero = puntero + 1
                 case (2)
-                    if (any(char == S)) then
+                    if (any(char == M)) then ! si lee una minuscula empieza la cadena
+                        estado = 1
+                        columna = columna + 1
+                        tkn = char
+                        columnaToken = columna   !se setea la columna donde empieza el token
+                    else if (any(char == N)) then ! si se lee un numero empieza la cadena
                         columna = columna + 1
                         estado = 3
-                        ! agregar el char
-                    else if (any(char == N)) then
+                        tkn = char ! Inicia la cadena de caracteres
+                        columnaToken = columna   !se setea la columna donde empieza el token
+                        porcentaje = .TRUE.
+                    else if (ichar(char) == 34) then ! si se lee una comilla doble empieza la cadena
                         columna = columna + 1
-                        estado = 5
-                        ! agregar el char
-                    else if (ichar(char) == 34) then
-                        columna = columna + 1
-                        estado = 4  ! agregar a tabla de tokens el tkn y el char
-                    else
-                        numErrores = numErrores + 1
-                        errores(numErrores) = ErrorInfo(char, "caracter no pertecene a S a N estado 2", columna, linea)
-                        columna = columna + 1
-                        estado = 2
-                    end if
-                    puntero = puntero + 1
-                case (3)
-                    
-                    if (any(char == M)) then
-                        estado = 3
-                        columna = columna + 1
-                        tkn = tkn // char
-                    else if (any(char == S)) then
-                        columna = columna + 1
-                        estado = 3
-                        ! agregar a tabla de tokens el tkn y el char
-                        tkn = ""
-                    else if (ichar(char) == 34) then
-                        columna = columna + 1
-                        estado = 4  ! agregar a tabla de tokens el tkn y el char
-                    else if (any(char == N)) then
-                        columna = columna + 1
-                        estado = 5
-                        ! agregar el char
+                        estado = 3  ! agregar a tabla de tokens el tkn y el char
+                        tkn = char ! Inicia la cadena de caracteres
+                        columnaToken = columna   !se setea la columna donde empieza el token
+                        cadena = .TRUE.
                     else
                         numErrores = numErrores + 1
                         errores(numErrores) = ErrorInfo(char, "caracter no pertecene a M y S estado 3", columna, linea)
@@ -163,34 +226,16 @@ program analizador_lexico
                     
                     end if
                     puntero = puntero + 1
-                case (4)
-                    
-                    if (ichar(char) == 34) then
+                case (3)
+                    if (ichar(char) == 34) then ! cierra comillas dobles
                         columna = columna + 1
+                        tkn = trim(tkn) // char
                         estado = 0  ! agregar a tabla de tokens el tkn y el char
-                        puntero = puntero + 1
+                        cadena = .FALSE.
                     else if (ichar(char) /= 34) then
-                        estado = 4
+                        estado = 3
                         columna = columna + 1
-                        tkn = tkn // char
-                        
-                    end if
-                    puntero = puntero + 1
-                case (5)
-                    
-                    if (any(char == N)) then
-                        estado = 5
-                        columna = columna + 1
-                        tkn = tkn // char
-                    else if (any(char == S)) then
-                        estado = 0
-                        columna = columna + 1
-                        tkn = tkn // char
-                    else
-                        numErrores = numErrores + 1
-                        errores(numErrores) = ErrorInfo(char, "caracter no pertecene a N estado 5", columna, linea)
-                        columna = columna + 1
-                        estado = 3    
+                        tkn = trim(tkn) // char
                     end if
                     puntero = puntero + 1
             end select
@@ -199,65 +244,114 @@ program analizador_lexico
 
     ! Si hay errores, se crea el archivo HTML
     if (numErrores > 0) then
-      call generar_html_errores(numErrores, errores)
+        call generar_html_errores(numErrores, errores)
     else
+        call generar_html_tokens(numToken, tokens)
         print *, "No hay errores en el código."
 end if
 
 contains
 
-    subroutine generar_html_errores(numErrores, errores)
-        implicit none
-        integer, intent(in) :: numErrores
-        type(ErrorInfo), intent(in) :: errores(numErrores)
-        character(len=100000) :: html_content
-        character(len=100) :: str_descripcion, str_columna, str_linea, char_error, str_num
 
-        integer :: file_unit, ios, i
+subroutine generar_html_errores(numErrores, errores)
+    implicit none
+    integer, intent(in) :: numErrores
+    type(ErrorInfo), intent(in) :: errores(numErrores)
+    character(len=100000) :: html_content
+    character(len=100) :: str_descripcion, str_columna, str_linea, char_error
+    integer :: i
+    integer :: file_unit, ios
 
-        ! Si hay errores, se crea el archivo HTML
-        if (numErrores > 0) then
-            ! Abrir el archivo para escribir
-            open(unit=file_unit, file="errores.html", status="replace", action="write", iostat=ios)
-            if (ios /= 0) then
-                print *, "Error al crear el archivo HTML."
-            else
-                ! Escribir la cabecera del HTML directamente al archivo
-                write(file_unit, '(A)') '<!DOCTYPE html>' // new_line('a')
-                write(file_unit, '(A)') '<html><head><style>' // new_line('a')
-                write(file_unit, '(A)') 'table { font-family: Arial, sans-serif;' // new_line('a')
-                write(file_unit, '(A)') 'border-collapse: collapse; width: 100%; }' // new_line('a')
-                write(file_unit, '(A)') 'td, th { border: 1px solid #dddddd; text-align: left; padding: 8px; }' // new_line('a')
-                write(file_unit, '(A)') 'tr:nth-child(even) { background-color: #f2f2f2; }' // new_line('a')
-                write(file_unit, '(A)') '</style></head><body><h2>Tabla de Errores</h2>' // new_line('a')
-                
-                ! Escribir encabezado de la tabla
-                write(file_unit, '(A)') '<table><tr><th>No.</th><th>Carácter</th>' // new_line('a') // &
-                                         '<th>Descripcion</th><th>Columna</th><th>Línea</th></tr>' // new_line('a')
-
-                ! Bucle para agregar filas numeradas a la tabla
-                do i = 1, numErrores
-                    write(str_num, '(I0)') i
-                    write(str_descripcion, '(A)') trim(errores(i)%descripcion)
-                    write(str_columna, '(I0)') errores(i)%columna
-                    write(str_linea, '(I0)') errores(i)%linea
-                    write(char_error, '(A)') trim(errores(i)%caracter)
-
-                    ! Escribir cada fila numerada al archivo HTML
-                    write(file_unit, '(A)') '<tr><td>' // str_num // '</td><td>' // char_error // &
-                                             '</td><td>' // trim(str_descripcion) // '</td><td>' // &
-                                             trim(str_columna) // '</td><td>' // trim(str_linea) // &
-                                             '</td></tr>' // new_line('a')
-                end do
-
-                ! Cerrar la tabla y el HTML
-                write(file_unit, '(A)') '</table></body></html>'
-                close(file_unit)
-            end if
+    if (numErrores > 0) then
+        ! Abrir el archivo para escribir
+        open(unit=file_unit, file="reporte.html", status="replace", action="write", iostat=ios)
+        if (ios /= 0) then
+            print *, "Error al crear el archivo HTML."
         else
-            print *, "No hay errores en el código."
+            ! Escribir la cabecera del HTML directamente al archivo
+            write(file_unit, '(A)') '<!DOCTYPE html>' // new_line('a')
+            write(file_unit, '(A)') '<html><head><style>' // new_line('a')
+            write(file_unit, '(A)') 'table { font-family: Arial, sans-serif;'
+            write(file_unit, '(A)') 'border-collapse: collapse; width: 100%; }' // new_line('a')
+            write(file_unit, '(A)') 'td, th { border: 1px solid #dddddd; text-align: left; padding: 8px; }' // new_line('a')
+            write(file_unit, '(A)') 'tr:nth-child(even) { background-color: #f2f2f2; }' // new_line('a')
+            write(file_unit, '(A)') '</style></head><body><h2>Tabla de Errores</h2>' // new_line('a')
+            write(file_unit, '(A)') '<table><tr><th>No</th><th>Carácter</th><th>Descripcion' 
+            write(file_unit, '(A)') '</th><th>Columna</th><th>Línea</th></tr>' // new_line('a')
+
+            ! Bucle para formatear cada código ASCII y cada columna
+
+            ! Bucle para agregar filas a la tabla
+            do i = 1, numErrores
+                write(str_descripcion, '(A)') trim(errores(i)%descripcion)
+                write(str_columna, '(I0)') errores(i)%columna
+                write(str_linea, '(I0)')  errores(i)%linea
+                write(char_error, '(A)') trim(errores(i)%caracter)
+                
+                ! Escribir cada fila directamente al archivo
+                write(file_unit, '(A)') '<tr><td>' // trim(itoa(i)) // '</td><td>' // trim(char_error) // '</td><td>' // &
+                    trim(str_descripcion) // '</td><td>' // trim(str_columna) // '</td><td>' // &
+                    trim(str_linea) // '</td></tr>' // new_line('a')
+            end do
+
+            ! Cerrar la tabla y el HTML
+            write(file_unit, '(A)') '</table></body></html>'
+            close(file_unit)
         end if
-    end subroutine generar_html_errores
+    else
+        print *, "No hay errores en el código."
+    end if
+end subroutine generar_html_errores
+
+subroutine generar_html_tokens(numToken, tokens)
+    implicit none
+    integer, intent(in) :: numToken
+    type(TokenType), intent(in) :: tokens(numToken)
+    character(len=100000) :: html_content
+    character(len=100) :: str_descripcion, str_columna, str_linea, Tlexema
+    integer :: i
+    integer :: file_unit, ios
+
+    if (numErrores == 0) then
+        ! Abrir el archivo para escribir
+        open(unit=file_unit, file="reporte.html", status="replace", action="write", iostat=ios)
+        if (ios /= 0) then
+            print *, "Error al crear el archivo HTML."
+        else
+            ! Escribir la cabecera del HTML directamente al archivo
+            write(file_unit, '(A)') '<!DOCTYPE html>' // new_line('a')
+            write(file_unit, '(A)') '<html><head><style>' // new_line('a')
+            write(file_unit, '(A)') 'table { font-family: Arial, sans-serif;'
+            write(file_unit, '(A)') 'border-collapse: collapse; width: 100%; }' // new_line('a')
+            write(file_unit, '(A)') 'td, th { border: 1px solid #dddddd; text-align: left; padding: 8px; }' // new_line('a')
+            write(file_unit, '(A)') 'tr:nth-child(even) { background-color: #f2f2f2; }' // new_line('a')
+            write(file_unit, '(A)') '</style></head><body><h2>Tabla de Tokens</h2>' // new_line('a')
+            write(file_unit, '(A)') '<table><tr><th>No</th><th>Lexema</th><th>Descripcion' 
+            write(file_unit, '(A)') '</th><th>Columna</th><th>Línea</th></tr>' // new_line('a')
+
+            ! Bucle para formatear cada código ASCII y cada columna
+
+            ! Bucle para agregar filas a la tabla
+            do i = 1, numToken
+                write(str_descripcion, '(A)') trim(tokens(i)%tipo_lexema)
+                write(str_columna, '(I0)') tokens(i)%columna
+                write(str_linea, '(I0)')  tokens(i)%linea
+                write(Tlexema, '(A)') trim(tokens(i)%lexema)
+                
+                ! Escribir cada fila directamente al archivo
+                write(file_unit, '(A)') '<tr><td>' // trim(itoa(i)) // '</td><td>' // trim(Tlexema) // '</td><td>' // &
+                    trim(str_descripcion) // '</td><td>' // trim(str_columna) // '</td><td>' // &
+                    trim(str_linea) // '</td></tr>' // new_line('a')
+            end do
+
+            ! Cerrar la tabla y el HTML
+            write(file_unit, '(A)') '</table></body></html>'
+            close(file_unit)
+        end if
+    else
+        print *, "No hay errores en el código."
+    end if
+end subroutine generar_html_tokens
 
     function itoa(num) result(str)
         implicit none
@@ -266,7 +360,5 @@ contains
 
         write(str, '(I0)') num  ! Convierte el entero 'num' a cadena
     end function itoa
-
-
 
 end program analizador_lexico
