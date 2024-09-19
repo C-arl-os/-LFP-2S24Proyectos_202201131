@@ -35,8 +35,17 @@ program analizador_lexico
     type(ErrorInfo), dimension(100) :: errores
     character(len=1) :: char 
     character(len=100) :: tkn
+    character(len=100) :: name
+    character(len=300) :: graf
     character(len=1), dimension(26) :: A 
     character(len=1), dimension(26) :: M
+
+    !caracter para el graphiz
+    character(len=30) :: nombregrafica,axuxiliar
+    logical :: validarnombre
+    character(len=50) :: nombrecontinente,nombrepais
+    logical :: validarcontinente, agregarcontinente
+    logical :: validarpais,agregarpais, acceso
     !character(len=1), dimension(1) :: D 
     !character(len=1), dimension(1) :: P 
     !character(len=1), dimension(1) :: Y
@@ -83,12 +92,50 @@ program analizador_lexico
     cadena = .FALSE.
     porcentaje = .FALSE.
     tkn = ''
+    ! :::::::::: para generara el graphiz
+    acceso = .FALSE.
+    nombregrafica = ''
+    validarnombre = .TRUE.
+    validarpais = .FALSE.
+    validarcontinente = .FALSE.
+    nombrecontinente =''
+    agregarcontinente = .FALSE.
+    agregarpais = .FALSE.
+    graf = ''
+    nombrepais = ''
+    axuxiliar = ''
 
     len = len_trim(contenido) 
 
     do while (puntero <= len)
         char = contenido(puntero:puntero)
+        !graphiz
+        if (puntero == len) then
+            graf = trim(graf) // new_line('a')// "}"
+            print*, graf
+            
+        end if
+        if (agregarcontinente) then
+            graf = trim(graf) // new_line('a') // trim(nombregrafica) // " -> " // trim(nombrecontinente)
+                        
+            
+            agregarcontinente = .FALSE.
+            
+        end if
+        if (agregarpais) then
+            if (len_trim(nombrepais) > 0) then
+                print*, 'Pais:', trim(nombrepais)
+                graf = trim(graf) // new_line('a') // trim(nombrecontinente) // " -> " // trim(nombrepais)
+            else
+            
+            end if
 
+            ! Reinicializar la variable
+            nombrepais = ''
+            agregarcontinente = .FALSE.
+            agregarpais = .FALSE.
+        end if
+        
         if (ichar(char) == 10) then
             ! salto de linea
             columna = 1
@@ -134,9 +181,24 @@ program analizador_lexico
             puntero = puntero + 1
             numToken = numToken + 1
             tokens(numToken) = TokenType('{', 'Abre Llave', linea, columna)
+            ! kkkkkk
+            
             estado = 0
         else if (ichar(char) == 58) then !aqui debe guardar un token palabra reservada
             !dos puntos
+            
+            if (agregarpais) then
+            
+                if ('nombre' == trim(tkn)) then
+                    
+                    agregarpais = .FALSE.
+                    !print*, nombrepais
+                    print*, nombrepais
+                    nombrepais= ''
+                end if
+                nombrepais = ''
+            end if
+            
             if (cadena .eqv. .TRUE.) then
                 columna = columna + 1
                 tkn = trim(tkn) // char
@@ -151,6 +213,35 @@ program analizador_lexico
                 end do
                 columna = columna + 1
                 numToken = numToken + 1
+                !comparando grafica para iniciar el graphiz 
+                if ('grafica' == trim(tkn)) then
+                        graf = "digraph G {"
+                        !graf = trim(graf) // new_line('a')// "pedro" 
+                        !print*, "hola", name
+                        
+                else if ('continente' == trim(tkn)) then
+                        
+                        axuxiliar = 'continente'
+                        nombrecontinente =''
+                        validarcontinente = .TRUE.
+                        validarpais = .FALSE.
+                        acceso = .FALSE.
+                else if ('pais' == trim(tkn)) then
+                        ! validarcontinente = .FALSE.
+                        !validarpais = .TRUE.
+                        axuxiliar = 'pais'
+                        acceso = .TRUE.
+                
+                else if (acceso) then
+                        if ('nombre' == trim(tkn)) then
+                            validarcontinente = .FALSE.
+                            validarpais = .TRUE.
+                            axuxiliar = 'pais'
+                        end if
+                        
+                
+                
+                end if
                 tokens(numToken) = TokenType(':', 'Dos Puntos', linea, columna)
                 estado = 2
                 tkn = ''    !reiniciamos el tkn luego de agregarlo
@@ -232,10 +323,32 @@ program analizador_lexico
                         tkn = trim(tkn) // char
                         estado = 0  ! agregar a tabla de tokens el tkn y el char
                         cadena = .FALSE.
+                        !se valida la variable de la grafica el nombre una vez
+                        validarnombre = .FALSE.
+                        validarpais = .FALSE.
+                        if (axuxiliar == 'continente') then 
+                            agregarcontinente = .TRUE.
+                        elseif (axuxiliar == 'pais') then
+                            agregarpais = .TRUE.
+                        end if 
                     else if (ichar(char) /= 34) then
+                        
                         estado = 3
                         columna = columna + 1
                         tkn = trim(tkn) // char
+                        !name = trim(name) // char
+                        ! validamos una vez el nombre
+                        if (validarnombre) then
+                            nombregrafica = trim(nombregrafica) // char
+                        
+                        end if 
+                        if (validarcontinente) then
+                            nombrecontinente = trim(nombrecontinente) // char
+                        
+                        end if
+                        if (validarpais) then
+                            nombrepais = trim(nombrepais) // char
+                        end if
                     end if
                     puntero = puntero + 1
             end select
