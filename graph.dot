@@ -1,0 +1,20 @@
+digraph G {
+"5rchiv0d33ntr4d4#1" -> "Europa"
+Europa -> Belgica
+Europa -> Dinamarca
+Europa -> Alemania
+Europa -> Bulgaria
+Europa -> BosniayHerzegovina
+Europa -> Austria
+"5rchiv0d33ntr4d4#1" -> "Asia"
+Asia -> Armenia
+Asia -> China
+Asia -> Camboya
+Asia -> CoreadelSur
+Asia -> Chipre
+"5rchiv0d33ntr4d4#1" -> "Oceania"
+Oceania -> IslasSalomon
+Oceania -> Indonesia
+Oceania -> IslasMarshall
+Oceania -> Nauru
+}

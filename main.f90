@@ -34,9 +34,9 @@ program analizador_lexico
     ! Declaración de un arreglo de errores de tipo ErrorInfo
     type(ErrorInfo), dimension(100) :: errores
     character(len=1) :: char 
-    character(len=100) :: tkn
+    character(len=500) :: tkn
     character(len=100) :: name
-    character(len=300) :: graf
+    character(len=10000) :: graf
     character(len=1), dimension(26) :: A 
     character(len=1), dimension(26) :: M
 
@@ -54,7 +54,7 @@ program analizador_lexico
     character(len=1), dimension(10) :: N
     character(len=1) :: char_error
     !type(TokenType), dimension(5) :: T
-    character(len=10000) :: buffer, contenido
+    character(len=2000) :: buffer, contenido
     character(len=10) :: str_codigo_ascii, str_columna, str_linea
     ! Variables para el archivo HTML
 
@@ -116,7 +116,8 @@ program analizador_lexico
             
         end if
         if (agregarcontinente) then
-            graf = trim(graf) // new_line('a') // trim(nombregrafica) // " -> " // trim(nombrecontinente)
+            graf = trim(graf) // new_line('a') // '"' // trim(nombregrafica) // '"' // &
+       " -> " // '"' // trim(nombrecontinente) // '"'
                         
             
             agregarcontinente = .FALSE.
@@ -124,7 +125,7 @@ program analizador_lexico
         end if
         if (agregarpais) then
             if (len_trim(nombrepais) > 0) then
-                print*, 'Pais:', trim(nombrepais)
+                !print*, 'Pais:', trim(nombrepais)
                 graf = trim(graf) // new_line('a') // trim(nombrecontinente) // " -> " // trim(nombrepais)
             else
             
@@ -149,8 +150,8 @@ program analizador_lexico
             ! espacio en blanco
             columna = columna + 1
             puntero = puntero + 1
-            numToken = numToken + 1
-            tokens(numToken) = TokenType(' ', 'Espacio', linea, columna)
+            !numToken = numToken + 1
+            !tokens(numToken) = TokenType(' ', 'Espacio', linea, columna)
         elseif (ichar(char) == 59) then
             !punto y coma
             if (porcentaje .eqv. .TRUE.) then
@@ -218,6 +219,7 @@ program analizador_lexico
                         graf = "digraph G {"
                         !graf = trim(graf) // new_line('a')// "pedro" 
                         !print*, "hola", name
+                        !print*, numToken
                         
                 else if ('continente' == trim(tkn)) then
                         
@@ -357,9 +359,12 @@ program analizador_lexico
 
     ! Si hay errores, se crea el archivo HTML
     if (numErrores > 0) then
+    ! Se crea el archivo HTML con los errores
         call generar_html_errores(numErrores, errores)
+        call generate_graphviz(graf)
     else
         call generar_html_tokens(numToken, tokens)
+        call generate_graphviz(graf)
         print *, "No hay errores en el código."
 end if
 
@@ -446,6 +451,9 @@ subroutine generar_html_tokens(numToken, tokens)
 
             ! Bucle para agregar filas a la tabla
             do i = 1, numToken
+            ! Obtener el lexema del token
+
+                print '(I10)', numToken
                 write(str_descripcion, '(A)') trim(tokens(i)%tipo_lexema)
                 write(str_columna, '(I0)') tokens(i)%columna
                 write(str_linea, '(I0)')  tokens(i)%linea
@@ -473,5 +481,30 @@ end subroutine generar_html_tokens
 
         write(str, '(I0)') num  ! Convierte el entero 'num' a cadena
     end function itoa
+
+subroutine generate_graphviz(graf)
+    implicit none
+    character(len=*), intent(in) :: graf  ! Recibe la estructura del gráfico como argumento
+    integer :: ios
+    character(len=400) :: comando
+
+    ! Abrimos el archivo para escribir el gráfico
+    open(unit=10, file="graph.dot", status="replace", iostat=ios)
+    if (ios /= 0) then
+        print*, "Error abriendo el archivo: ", ios
+        return  ! Termina si hay error
+    end if
+
+    ! Escribimos la estructura del gráfico en el archivo
+    write(10, '(A)') trim(graf)  ! Escribe la estructura contenida en graf
+    close(10)  ! Cerramos el archivo
+
+    ! Comando para generar el archivo PNG usando Graphviz
+    comando = "dot -Tpng graph.dot -o graph.png"
+    call system(comando)
+
+    print *, "Grafico generado correctamente"
+
+end subroutine generate_graphviz
 
 end program analizador_lexico

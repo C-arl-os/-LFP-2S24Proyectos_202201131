@@ -1,0 +1,10 @@
+digraph G {
+ModeloContinental -> Asia
+Asia -> Japon
+Asia -> China
+Asia -> Korea
+ModeloContinental -> America
+America -> Canada
+America -> Guatemala
+America -> Chile
+}
