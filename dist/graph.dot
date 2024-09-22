@@ -1,10 +1,77 @@
 digraph G {
-ModeloContinental -> Asia
-Asia -> Japon
+"5rchiv0d33ntr4d4#1" -> "Europa"
+ARYMacedonia[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="blue">ARYMacedonia</td></tr><tr><td bgcolor="blue">25%</td></tr></table>>, shape=Msquare];
+Europa -> ARYMacedonia
+
+BosniayHerzegovina[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="red">BosniayHerzegovina</td></tr><tr><td bgcolor="red">93%</td></tr></table>>, shape=Msquare];
+Europa -> BosniayHerzegovina
+
+Croacia[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="green">Croacia</td></tr><tr><td bgcolor="green">33%</td></tr></table>>, shape=Msquare];
+Europa -> Croacia
+
+Europa[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="yellow">Europa</td></tr><tr><td bgcolor="yellow">50%</td></tr></table>>, shape=tripleoctagon];
+"5rchiv0d33ntr4d4#1" -> "Asia"
+China[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="yellow">China</td></tr><tr><td bgcolor="yellow">56%</td></tr></table>>, shape=Msquare];
 Asia -> China
-Asia -> Korea
-ModeloContinental -> America
-America -> Canada
-America -> Guatemala
-America -> Chile
+
+Brunei[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="yellow">Brunei</td></tr><tr><td bgcolor="yellow">50%</td></tr></table>>, shape=Msquare];
+Asia -> Brunei
+
+Asia[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="yellow">Asia</td></tr><tr><td bgcolor="yellow">53%</td></tr></table>>, shape=tripleoctagon];
+"5rchiv0d33ntr4d4#1" -> "Oceania"
+Nauru[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="white">Nauru</td></tr><tr><td bgcolor="white">2%</td></tr></table>>, shape=Msquare];
+Oceania -> Nauru
+
+IslasSalomon[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="yellow">IslasSalomon</td></tr><tr><td bgcolor="yellow">60%</td></tr></table>>, shape=Msquare];
+Oceania -> IslasSalomon
+
+Indonesia[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="white">Indonesia</td></tr><tr><td bgcolor="white">15%</td></tr></table>>, shape=Msquare];
+Oceania -> Indonesia
+
+Oceania[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="blue">Oceania</td></tr><tr><td bgcolor="blue">25%</td></tr></table>>, shape=tripleoctagon];
+"5rchiv0d33ntr4d4#1" -> "Amerciadelnorte"
+Jamaica[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="white">Jamaica</td></tr><tr><td bgcolor="white">2%</td></tr></table>>, shape=Msquare];
+Amerciadelnorte -> Jamaica
+
+Panama[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="red">Panama</td></tr><tr><td bgcolor="red">80%</td></tr></table>>, shape=Msquare];
+Amerciadelnorte -> Panama
+
+EstadosUnidos[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="blue">EstadosUnidos</td></tr><tr><td bgcolor="blue">17%</td></tr></table>>, shape=Msquare];
+Amerciadelnorte -> EstadosUnidos
+
+Amerciadelnorte[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="green">Amerciadelnorte</td></tr><tr><td bgcolor="green">33%</td></tr></table>>, shape=tripleoctagon];
+"5rchiv0d33ntr4d4#1" -> "Americadelsur"
+Paraguay[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="blue">Paraguay</td></tr><tr><td bgcolor="blue">20%</td></tr></table>>, shape=Msquare];
+Americadelsur -> Paraguay
+
+Guyana[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="yellow">Guyana</td></tr><tr><td bgcolor="yellow">47%</td></tr></table>>, shape=Msquare];
+Americadelsur -> Guyana
+
+Chile[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="green">Chile</td></tr><tr><td bgcolor="green">39%</td></tr></table>>, shape=Msquare];
+Americadelsur -> Chile
+
+Surinam[label=<<table border="0" cellborder="1" ellspacing="0"><tr><td bgcolor="orange">Surinam</td></tr><tr><td bgcolor="orange">75%</td></tr></table>>, shape=Msquare];
+Americadelsur -> Surinam
+
+Colombia[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="blue">Colombia</td></tr><tr><td bgcolor="blue">28%</td></tr></table>>, shape=Msquare];
+Americadelsur -> Colombia
+
+Americadelsur[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="green">Americadelsur</td></tr><tr><td bgcolor="green">41%</td></tr></table>>, shape=tripleoctagon];
+"5rchiv0d33ntr4d4#1" -> "Africa"
+Reunion[label=<<table border="0" cellborder="1" ellspacing="0"><tr><td bgcolor="orange">Reunion</td></tr><tr><td bgcolor="orange">66%</td></tr></table>>, shape=Msquare];
+Africa -> Reunion
+
+Chad[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="yellow">Chad</td></tr><tr><td bgcolor="yellow">49%</td></tr></table>>, shape=Msquare];
+Africa -> Chad
+
+CaboVerde[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="blue">CaboVerde</td></tr><tr><td bgcolor="blue">23%</td></tr></table>>, shape=Msquare];
+Africa -> CaboVerde
+
+CostadeMarfil[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="red">CostadeMarfil</td></tr><tr><td bgcolor="red">76%</td></tr></table>>, shape=Msquare];
+Africa -> CostadeMarfil
+
+Ruanda[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="red">Ruanda</td></tr><tr><td bgcolor="red">89%</td></tr></table>>, shape=Msquare];
+Africa -> Ruanda
+
+Africa[label=<<table border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="yellow">Africa</td></tr><tr><td bgcolor="yellow">60%</td></tr></table>>, shape=tripleoctagon];
 }

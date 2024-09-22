@@ -25,27 +25,39 @@ program analizador_lexico
     end type tokensA
 
     ! Declaración de un arreglo de tokens de tipo TokenType
-    type(TokenType), dimension(1000) :: tokens
+    type(TokenType), dimension(2000) :: tokens
 
     ! Declaración de un arreglo de tokens de tipo tokensAprobados
     type(tokensA), dimension(7) :: tokensAprobados
 
 
     ! Declaración de un arreglo de errores de tipo ErrorInfo
-    type(ErrorInfo), dimension(100) :: errores
+    type(ErrorInfo), dimension(2000) :: errores
     character(len=1) :: char 
-    character(len=100) :: tkn
+    character(len=500) :: tkn
     character(len=100) :: name
-    character(len=300) :: graf
+    character(len=10000) :: graf
     character(len=1), dimension(26) :: A 
     character(len=1), dimension(26) :: M
 
     !caracter para el graphiz
-    character(len=30) :: nombregrafica,axuxiliar
+    character(len=30) :: nombregrafica,axuxiliar 
     logical :: validarnombre
-    character(len=50) :: nombrecontinente,nombrepais
+    character(len=50) :: nombrecontinente
+    character(len=1000) :: nombrepais
     logical :: validarcontinente, agregarcontinente
     logical :: validarpais,agregarpais, acceso
+    
+
+    !variables de porcentaje 
+    character(len=100) :: validarsaturacion,val
+    character(len=20) :: aguardarsaturacion
+    logical :: porcen
+    integer :: integervalue, suma
+    !variable para suma de saturación continente
+    integer :: saturacioncontinente
+    integer :: sumarpaises
+    !convertir 
     !character(len=1), dimension(1) :: D 
     !character(len=1), dimension(1) :: P 
     !character(len=1), dimension(1) :: Y
@@ -54,7 +66,7 @@ program analizador_lexico
     character(len=1), dimension(10) :: N
     character(len=1) :: char_error
     !type(TokenType), dimension(5) :: T
-    character(len=10000) :: buffer, contenido
+    character(len=3000) :: buffer, contenido
     character(len=10) :: str_codigo_ascii, str_columna, str_linea
     ! Variables para el archivo HTML
 
@@ -95,7 +107,7 @@ program analizador_lexico
     ! :::::::::: para generara el graphiz
     acceso = .FALSE.
     nombregrafica = ''
-    validarnombre = .TRUE.
+    validarnombre = .TRUE. !nombre del grafico
     validarpais = .FALSE.
     validarcontinente = .FALSE.
     nombrecontinente =''
@@ -104,34 +116,124 @@ program analizador_lexico
     graf = ''
     nombrepais = ''
     axuxiliar = ''
+    ! validar saturacion
+    validarsaturacion = '' !aguarda los numero concatenadios
+    aguardarsaturacion ='' !el que valida si viene porcentaje
+    porcen = .FALSE.    !cierra y abre la lectura
 
     len = len_trim(contenido) 
 
     do while (puntero <= len)
         char = contenido(puntero:puntero)
-        !graphiz para colocar el caracter de cierre del graphiz
+        !graphiz
         if (puntero == len) then
+            suma = saturacioncontinente/sumarpaises
+            if (suma <= 15) then
+                graf = trim(graf) // new_line('a') //trim(nombrecontinente) // '[label=<<table ' // &
+                'border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="white">' // &
+                trim(nombrecontinente) // '</td></tr><tr><td bgcolor="white">' // &
+                trim(itoa(suma)) // '%</td></tr></table>>, shape=tripleoctagon];'
+            elseif (suma <= 30) then
+                graf = trim(graf) // new_line('a') //trim(nombrecontinente) // '[label=<<table ' // &
+                'border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="blue">' // &
+                trim(nombrecontinente) // '</td></tr><tr><td bgcolor="blue">' // &
+                trim(itoa(suma)) // '%</td></tr></table>>, shape=tripleoctagon];'
+            elseif (suma <= 45) then
+                graf = trim(graf) // new_line('a') //trim(nombrecontinente) // '[label=<<table ' // &
+                'border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="green">' // &
+                trim(nombrecontinente) // '</td></tr><tr><td bgcolor="green">' // &
+                trim(itoa(suma)) // '%</td></tr></table>>, shape=tripleoctagon];'
+            elseif (suma <= 60) then
+                graf = trim(graf) // new_line('a') //trim(nombrecontinente) // '[label=<<table ' // &
+                'border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="yellow">' // &
+                trim(nombrecontinente) // '</td></tr><tr><td bgcolor="yellow">' // &
+                trim(itoa(suma)) // '%</td></tr></table>>, shape=tripleoctagon];'
+            elseif (suma <= 75) then
+                graf = trim(graf) // new_line('a') //trim(nombrecontinente) // '[label=<<table ' // &
+                'border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="orange">' // &
+                trim(nombrecontinente) // '</td></tr><tr><td bgcolor="orange">' // &
+                trim(itoa(suma)) // '%</td></tr></table>>, shape=tripleoctagon];'
+            elseif (suma <= 100) then
+                graf = trim(graf) // new_line('a') //trim(nombrecontinente) // '[label=<<table ' // &
+                'border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="red">' // &
+                trim(nombrecontinente) // '</td></tr><tr><td bgcolor="red">' // &
+                trim(itoa(suma)) // '%</td></tr></table>>, shape=tripleoctagon];'
+            end if
+            print*,suma
+            print*,nombrecontinente, "saturación", saturacioncontinente/sumarpaises
+
             graf = trim(graf) // new_line('a')// "}"
-            print*, graf
+            
+            !print*, graf
             
         end if
-        if (agregarcontinente) then
-            graf = trim(graf) // new_line('a') // trim(nombregrafica) // " -> " // trim(nombrecontinente)
+        if (agregarcontinente) then    ! agrego el contiente
+            graf = trim(graf) // new_line('a') // '"' // trim(nombregrafica) // '"' // &
+       " -> " // '"' // trim(nombrecontinente) // '"'
                         
             
-            agregarcontinente = .FALSE.
+            agregarcontinente = .FALSE. !sino se queda abierto 
+            saturacioncontinente = 0
+            sumarpaises = 0
+            
+            
+            !pasa a false
             
         end if
-        if (agregarpais) then
+        if (agregarpais ) then
             if (len_trim(nombrepais) > 0) then
-                !print*, 'Pais:', trim(nombrepais)
-                graf = trim(graf) // new_line('a') // trim(nombrecontinente) // " -> " // trim(nombrepais)
+                if(porcen) then
+                    validarsaturacion = trim(validarsaturacion) 
+                    
+                    !print*, validarsaturacion
+                    read(validarsaturacion, *) integervalue
+                    saturacioncontinente = saturacioncontinente + integervalue
+                    sumarpaises = sumarpaises +1
+                    print*, saturacioncontinente
+                    print*, sumarpaises
+                    !print*, integervalue
+                    !print*, nombrepais
+                    if (integervalue <= 15) then
+                        graf = trim(graf) // new_line('a') //trim(nombrepais) // '[label=<<table border="0" cellborder="1" ' // &
+                    'cellspacing="0"><tr><td bgcolor="white">' // trim(nombrepais) // '</td></tr><tr><td bgcolor="white">' // &
+                    trim(itoa(integervalue)) // '%</td></tr></table>>, shape=Msquare];'
+                    elseif (integervalue <= 30) then
+                        graf = trim(graf) // new_line('a') //trim(nombrepais) // '[label=<<table border="0" cellborder="1" ' // & 
+                    'cellspacing="0"><tr><td bgcolor="blue">' // trim(nombrepais) // '</td></tr><tr><td bgcolor="blue">' // &
+                    trim(itoa(integervalue)) // '%</td></tr></table>>, shape=Msquare];'
+                    elseif (integervalue <= 45) then
+                        graf = trim(graf) // new_line('a') //trim(nombrepais) // '[label=<<table border="0" cellborder="1" ' // &
+                    'cellspacing="0"><tr><td bgcolor="green">' // trim(nombrepais) // '</td></tr><tr><td bgcolor="green">' // &
+                    trim(itoa(integervalue)) // '%</td></tr></table>>, shape=Msquare];'
+                    elseif (integervalue <= 60) then
+                        graf = trim(graf) // new_line('a') //trim(nombrepais) // '[label=<<table border="0" cellborder="1" '// & 
+                    'cellspacing="0"><tr><td bgcolor="yellow">' // trim(nombrepais) // '</td></tr><tr><td bgcolor="yellow">' // &
+                    trim(itoa(integervalue)) // '%</td></tr></table>>, shape=Msquare];'
+                    elseif (integervalue <= 75) then
+                        graf = trim(graf) // new_line('a') //trim(nombrepais) // '[label=<<table border="0" cellborder="1" ' // & 
+                    'ellspacing="0"><tr><td bgcolor="orange">' // trim(nombrepais) // '</td></tr><tr><td bgcolor="orange">' // &
+                    trim(itoa(integervalue)) // '%</td></tr></table>>, shape=Msquare];'
+                    elseif (integervalue <= 100) then
+                        graf = trim(graf) // new_line('a') //trim(nombrepais) // '[label=<<table border="0" cellborder="1" ' // & 
+                    'cellspacing="0"><tr><td bgcolor="red">' // trim(nombrepais) // '</td></tr><tr><td bgcolor="red">' // &
+                    trim(itoa(integervalue)) // '%</td></tr></table>>, shape=Msquare];'
+                    end if
+                    !print *, validarsaturacion // nombrepais
+                    validarsaturacion =''
+                    nombrepais = trim(nombrepais) // achar(10) // trim(validarsaturacion)
+                    !print*, 'Pais:', trim(nombrepais)
+                    graf = trim(graf) // new_line('a') // trim(nombrecontinente) // " -> " // trim(nombrepais)
+                
+                    nombrepais = ''
+                    porcen = .FALSE.
+                end if
+                
             else
             
             end if
 
             ! Reinicializar la variable
-            nombrepais = ''
+            
             agregarcontinente = .FALSE.
             agregarpais = .FALSE.
         end if
@@ -149,8 +251,8 @@ program analizador_lexico
             ! espacio en blanco
             columna = columna + 1
             puntero = puntero + 1
-            numToken = numToken + 1
-            tokens(numToken) = TokenType(' ', 'Espacio', linea, columna)
+            !numToken = numToken + 1
+            !tokens(numToken) = TokenType(' ', 'Espacio', linea, columna)
         elseif (ichar(char) == 59) then
             !punto y coma
             if (porcentaje .eqv. .TRUE.) then
@@ -187,17 +289,7 @@ program analizador_lexico
         else if (ichar(char) == 58) then !aqui debe guardar un token palabra reservada
             !dos puntos
             
-            if (agregarpais) then
             
-                if ('nombre' == trim(tkn)) then
-                    
-                    agregarpais = .FALSE.
-                    !print*, nombrepais
-                    print*, nombrepais
-                    nombrepais= ''
-                end if
-                nombrepais = ''
-            end if
             
             if (cadena .eqv. .TRUE.) then
                 columna = columna + 1
@@ -209,23 +301,62 @@ program analizador_lexico
                     if (trim(tokensAprobados(i)%lexema) == trim(tkn)) then
                         tokens(numToken) = TokenType(tkn, 'Palabra Reservada', linea, columnaToken)
                         exit
+                        
                     end if
                 end do
                 columna = columna + 1
                 numToken = numToken + 1
                 !comparando grafica para iniciar el graphiz 
-                if ('grafica' == trim(tkn)) then
-                        graf = "digraph G {"
-                        !graf = trim(graf) // new_line('a')// "pedro" 
-                        !print*, "hola", name
+                if ('grafica' == trim(tkn)) then    !va a inciar el grafico
+                        graf = 'digraph G {' 
+                        !// new_line('a') // 'node [shape=component];'
+
                         
                 else if ('continente' == trim(tkn)) then
                         
                         axuxiliar = 'continente'
+                        if (len_trim(nombrecontinente) > 0) then
+                            suma = saturacioncontinente/sumarpaises
+                            !print*,nombrecontinente, "saturación", saturacioncontinente/sumarpaises
+                            !print*, ""
+                            if (suma <= 15) then
+                                graf = trim(graf) // new_line('a') //trim(nombrecontinente) // '[label=<<table ' // &
+                                'border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="white">' // &
+                                trim(nombrecontinente) // '</td></tr><tr><td bgcolor="white">' // &
+                                trim(itoa(suma)) // '%</td></tr></table>>, shape=tripleoctagon];'
+                            elseif (suma <= 30) then
+                                graf = trim(graf) // new_line('a') //trim(nombrecontinente) // '[label=<<table ' // &
+                                'border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="blue">' // &
+                                trim(nombrecontinente) // '</td></tr><tr><td bgcolor="blue">' // &
+                                trim(itoa(suma)) // '%</td></tr></table>>, shape=tripleoctagon];'
+                            elseif (suma <= 45) then
+                                graf = trim(graf) // new_line('a') //trim(nombrecontinente) // '[label=<<table ' // &
+                                'border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="green">' // &
+                                trim(nombrecontinente) // '</td></tr><tr><td bgcolor="green">' // &
+                                trim(itoa(suma)) // '%</td></tr></table>>, shape=tripleoctagon];'
+                            elseif (suma <= 60) then
+                                graf = trim(graf) // new_line('a') //trim(nombrecontinente) // '[label=<<table ' // &
+                                'border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="yellow">' // &
+                                trim(nombrecontinente) // '</td></tr><tr><td bgcolor="yellow">' // &
+                                trim(itoa(suma)) // '%</td></tr></table>>, shape=tripleoctagon];'
+                            elseif (suma <= 75) then
+                                graf = trim(graf) // new_line('a') //trim(nombrecontinente) // '[label=<<table ' // &
+                                'border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="orange">' // &
+                                trim(nombrecontinente) // '</td></tr><tr><td bgcolor="orange">' // &
+                                trim(itoa(suma)) // '%</td></tr></table>>, shape=tripleoctagon];'
+                            elseif (suma <= 100) then
+                                graf = trim(graf) // new_line('a') //trim(nombrecontinente) // '[label=<<table ' // &
+                                'border="0" cellborder="1" cellspacing="0"><tr><td bgcolor="red">' // &
+                                trim(nombrecontinente) // '</td></tr><tr><td bgcolor="red">' // &
+                                trim(itoa(suma)) // '%</td></tr></table>>, shape=tripleoctagon];'
+                            end if
+                        end if
                         nombrecontinente =''
                         validarcontinente = .TRUE.
-                        validarpais = .FALSE.
-                        acceso = .FALSE.
+                        validarpais = .FALSE.  !solo para el pais
+                        acceso = .FALSE.  !solo para el pais
+
+
                 else if ('pais' == trim(tkn)) then
                         ! validarcontinente = .FALSE.
                         !validarpais = .TRUE.
@@ -237,11 +368,15 @@ program analizador_lexico
                             validarcontinente = .FALSE.
                             validarpais = .TRUE.
                             axuxiliar = 'pais'
+                        else if('saturacion' == trim(tkn)) then
+                            aguardarsaturacion = 'saturacion'
                         end if
+
                         
                 
                 
                 end if
+                
                 tokens(numToken) = TokenType(':', 'Dos Puntos', linea, columna)
                 estado = 2
                 tkn = ''    !reiniciamos el tkn luego de agregarlo
@@ -250,6 +385,9 @@ program analizador_lexico
             puntero = puntero + 1
         else if (ichar(char) == 37) then ! aqui debe guardar una cadena de numeros
             !porcentaje
+            !print*, validarsaturacion
+            porcen = .TRUE.
+            aguardarsaturacion =''
             numToken = numToken + 1
             tokens(numToken) = TokenType(tkn, 'Cadena de Numeros', linea, columna)
             columna = columna + 1
@@ -298,6 +436,10 @@ program analizador_lexico
                         tkn = char
                         columnaToken = columna   !se setea la columna donde empieza el token
                     else if (any(char == N)) then ! si se lee un numero empieza la cadena
+                        if (aguardarsaturacion == 'saturacion') then
+                            !print*,char
+                            validarsaturacion = trim(validarsaturacion) // char
+                        end if
                         columna = columna + 1
                         estado = 3
                         tkn = char ! Inicia la cadena de caracteres
@@ -324,12 +466,13 @@ program analizador_lexico
                         estado = 0  ! agregar a tabla de tokens el tkn y el char
                         cadena = .FALSE.
                         !se valida la variable de la grafica el nombre una vez
-                        validarnombre = .FALSE.
+                        validarnombre = .FALSE.  !validar nombre de graphizn
+
                         validarpais = .FALSE.
                         if (axuxiliar == 'continente') then 
-                            agregarcontinente = .TRUE.
+                            agregarcontinente = .TRUE.  !aqui activa el primer if 
                         elseif (axuxiliar == 'pais') then
-                            agregarpais = .TRUE.
+                            agregarpais = .TRUE.   !pasa true en el primer if 
                         end if 
                     else if (ichar(char) /= 34) then
                         
@@ -338,16 +481,20 @@ program analizador_lexico
                         tkn = trim(tkn) // char
                         !name = trim(name) // char
                         ! validamos una vez el nombre
-                        if (validarnombre) then
+                        if (validarnombre) then  !validar nombre de grafiz 
                             nombregrafica = trim(nombregrafica) // char
                         
                         end if 
                         if (validarcontinente) then
-                            nombrecontinente = trim(nombrecontinente) // char
-                        
+                            nombrecontinente = trim(nombrecontinente) // char !concatenar el nomre continente
+                            !print*, nombrecontinente
                         end if
-                        if (validarpais) then
+                        if (validarpais) then    !concatena el nombre
                             nombrepais = trim(nombrepais) // char
+                        end if
+                        if(aguardarsaturacion == 'saturacion') then
+                            validarsaturacion = trim(validarsaturacion) // char 
+                            
                         end if
                     end if
                     puntero = puntero + 1
@@ -357,6 +504,7 @@ program analizador_lexico
 
     ! Si hay errores, se crea el archivo HTML
     if (numErrores > 0) then
+    ! Se crea el archivo HTML con los errores
         call generar_html_errores(numErrores, errores)
         call generate_graphviz(graf)
     else
@@ -448,6 +596,9 @@ subroutine generar_html_tokens(numToken, tokens)
 
             ! Bucle para agregar filas a la tabla
             do i = 1, numToken
+            ! Obtener el lexema del token
+
+                !print '(I10)', numToken
                 write(str_descripcion, '(A)') trim(tokens(i)%tipo_lexema)
                 write(str_columna, '(I0)') tokens(i)%columna
                 write(str_linea, '(I0)')  tokens(i)%linea
@@ -476,11 +627,19 @@ end subroutine generar_html_tokens
         write(str, '(I0)') num  ! Convierte el entero 'num' a cadena
     end function itoa
 
+    function ftoa(num) result(str)
+    implicit none
+    real, intent(in) :: num
+    character(len=20) :: str
+
+    write(str, '(I0)') NINT(num)  ! Convierte el número decimal 'num' a entero redondeado y luego a cadena
+end function ftoa
+
 subroutine generate_graphviz(graf)
     implicit none
     character(len=*), intent(in) :: graf  ! Recibe la estructura del gráfico como argumento
     integer :: ios
-    character(len=250) :: comando
+    character(len=400) :: comando
 
     ! Abrimos el archivo para escribir el gráfico
     open(unit=10, file="graph.dot", status="replace", iostat=ios)
