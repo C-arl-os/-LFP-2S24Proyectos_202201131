@@ -119,6 +119,7 @@ class MainWindow(tk.Tk):
 
         # Mostrar la imagen al analizar
         self.mostrar_imagen()
+        self.left_text_area.delete("1.0", tk.END)
 
     def mostrar_imagen(self):
         # Cargar la imagen desde la misma carpeta
@@ -142,7 +143,7 @@ class MainWindow(tk.Tk):
 
         # Asigna la imagen al label
         self.image_label.config(image=photo)
-        self.image_label.image = photo  # Para evitar que la imagen sea recogida por el GC
+        #self.image_label.image = photo  # Para evitar que la imagen sea recogida por el GC
 
     def guardar_archivo(self):
         # Obtener el contenido actual del área de texto izquierda

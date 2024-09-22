@@ -3,13 +3,7 @@ program analizador_lexico
     integer :: i, len, linea, columna, estado, puntero, numErrores, file_unit, ios,numToken, columnaToken
     integer :: espacio_texto
     logical :: cadena, porcentaje !esta se utilizara para separa el contexto de : y %
-     ! Definición de un tipo que almacena la información del error
-    type :: ErrorInfo
-        character(len=10) :: caracter  ! caracter
-        character(len=100) :: descripcion  ! Descripción del error
-        integer :: columna      ! Columna donde ocurrió el error
-        integer :: linea        ! Línea donde ocurrió el error
-    end type ErrorInfo
+     
 
     ! Definición de un tipo que almacena la información de un token
     type :: TokenType
@@ -23,7 +17,13 @@ program analizador_lexico
     type :: tokensA
         character(len=100) :: lexema
     end type tokensA
-
+    ! Definición de un tipo que almacena la información del error
+    type :: ErrorInfo
+        character(len=10) :: caracter  ! caracter
+        character(len=100) :: descripcion  ! Descripción del error
+        integer :: columna      ! Columna donde ocurrió el error
+        integer :: linea        ! Línea donde ocurrió el error
+    end type ErrorInfo
     ! Declaración de un arreglo de tokens de tipo TokenType
     type(TokenType), dimension(2000) :: tokens
 
@@ -57,12 +57,7 @@ program analizador_lexico
     !variable para suma de saturación continente
     integer :: saturacioncontinente
     integer :: sumarpaises
-    !convertir 
-    !character(len=1), dimension(1) :: D 
-    !character(len=1), dimension(1) :: P 
-    !character(len=1), dimension(1) :: Y
-    !character(len=1), dimension(1) :: C 
- 
+   
     character(len=1), dimension(10) :: N
     character(len=1) :: char_error
     !type(TokenType), dimension(5) :: T
@@ -82,10 +77,9 @@ program analizador_lexico
 
     A = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
     M = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-    !S = ['%','&','*','+',',','-', '.', '/', ';', '<', '=', '>', '?', '@', '[', '\', ']', '^', '_', '`', '{', '|', '}', '~']
     N = ['1','2','3','4','5','6','7','8','9','0']
 
-    !guardamos en tokensAprobados las palabras reservadas
+    
     tokensAprobados(1)%lexema = 'grafica'
     tokensAprobados(2)%lexema = 'nombre'
     tokensAprobados(3)%lexema = 'continente'
@@ -164,8 +158,6 @@ program analizador_lexico
 
             graf = trim(graf) // new_line('a')// "}"
             
-            !print*, graf
-            
         end if
         if (agregarcontinente) then    ! agrego el contiente
             graf = trim(graf) // new_line('a') // '"' // trim(nombregrafica) // '"' // &
@@ -177,22 +169,17 @@ program analizador_lexico
             sumarpaises = 0
             
             
-            !pasa a false
-            
         end if
         if (agregarpais ) then
             if (len_trim(nombrepais) > 0) then
                 if(porcen) then
                     validarsaturacion = trim(validarsaturacion) 
                     
-                    !print*, validarsaturacion
                     read(validarsaturacion, *) integervalue
                     saturacioncontinente = saturacioncontinente + integervalue
                     sumarpaises = sumarpaises +1
                     print*, saturacioncontinente
                     print*, sumarpaises
-                    !print*, integervalue
-                    !print*, nombrepais
                     if (integervalue <= 15) then
                         graf = trim(graf) // new_line('a') //trim(nombrepais) // '[label=<<table border="0" cellborder="1" ' // &
                     'cellspacing="0"><tr><td bgcolor="white">' // trim(nombrepais) // '</td></tr><tr><td bgcolor="white">' // &
@@ -218,10 +205,8 @@ program analizador_lexico
                     'cellspacing="0"><tr><td bgcolor="red">' // trim(nombrepais) // '</td></tr><tr><td bgcolor="red">' // &
                     trim(itoa(integervalue)) // '%</td></tr></table>>, shape=Msquare];'
                     end if
-                    !print *, validarsaturacion // nombrepais
                     validarsaturacion =''
                     nombrepais = trim(nombrepais) // achar(10) // trim(validarsaturacion)
-                    !print*, 'Pais:', trim(nombrepais)
                     graf = trim(graf) // new_line('a') // trim(nombrecontinente) // " -> " // trim(nombrepais)
                 
                     nombrepais = ''
@@ -498,6 +483,18 @@ program analizador_lexico
                         end if
                     end if
                     puntero = puntero + 1
+                case (4)
+                    if (validarcontinente) then
+                            nombrecontinente = trim(nombrecontinente) // char !concatenar el nomre continente
+                            !print*, nombrecontinente
+                        end if
+                        if (validarpais) then    !concatena el nombre
+                            nombrepais = trim(nombrepais) // char
+                        end if
+                        if(aguardarsaturacion == 'saturacion') then
+                            validarsaturacion = trim(validarsaturacion) // char 
+                            
+                        end if
             end select
         end if
     end do
@@ -506,7 +503,7 @@ program analizador_lexico
     if (numErrores > 0) then
     ! Se crea el archivo HTML con los errores
         call generar_html_errores(numErrores, errores)
-        call generate_graphviz(graf)
+        !call generate_graphviz(graf)
     else
         call generar_html_tokens(numToken, tokens)
         call generate_graphviz(graf)
