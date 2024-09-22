@@ -16,8 +16,8 @@ class PersonalDataWindow(tk.Toplevel):
 
         # Insertar datos personales en el cuadro de texto
         self.data_text.insert(tk.INSERT, "\n")
-        self.data_text.insert(tk.INSERT, "Nombre: Brandon René López García\n")
-        self.data_text.insert(tk.INSERT, "Carnet: 201902903\n")
+        self.data_text.insert(tk.INSERT, "Carlos Emanuel Sancir Reyes\n")
+        self.data_text.insert(tk.INSERT, "Carnet: 2202201131\n")
         self.data_text.insert(tk.INSERT, "Lab Lenguajes Formales y de Programación\n")
         self.data_text.insert(tk.INSERT, "Sección: B-\n")
 
@@ -32,7 +32,7 @@ class PersonalDataWindow(tk.Toplevel):
 class MainWindow(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Proyecto 1 - 202010035")
+        self.title("Analizador lexico- 202201131")
         self.geometry("1400x800")
         self.configure(bg='black')
 
