@@ -283,3 +283,4 @@ funciones de generación de gráfico
 
 ## TABLAS 
 ![Gráfico de Análisis Léxico](TABLA1.jpg)
+![Gráfico de Análisis Léxico](tabla2.jpg)

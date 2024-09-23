@@ -149,6 +149,11 @@ program analizador_lexico
     agregarcontinente = .FALSE.
     agregarpaisContinete = .FALSE.
     graf = ''
+
+
+
+
+    
     nombrepais = ''
     axuxiliar = ''
    
