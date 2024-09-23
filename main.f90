@@ -64,7 +64,7 @@ program analizador_lexico
     character(len=3000) :: buffer, contenido
     character(len=10) :: str_codigo_ascii, str_columna, str_linea
     ! Variables para el archivo HTML
-
+    
     contenido = ''  ! Inicializa contenido vacío
 
     ! Lee el contenido desde la entrada estándar
