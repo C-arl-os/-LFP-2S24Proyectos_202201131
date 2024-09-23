@@ -21,6 +21,8 @@ Antes de comenzar, asegúrate de que tu entorno cumple con los siguientes requis
 
 Para iniciar el programa, simplemente abre una terminal o símbolo del sistema y navega a la carpeta donde se encuentra el archivo `main.py`. Ejecuta el siguiente comando:
 
+o ejecutar el archivo ejecutable 
+
 ```bash
 python main.py
 ```
@@ -41,9 +43,13 @@ En la parte superior de la ventana encontrarás el menú principal, que contiene
 - **Acerca de**: Muestra una ventana con tus datos personales.
 - **Salir**: Cierra la aplicación.
 
+![Gráfico de Análisis Léxico](menu.jpg)
+
 #### 2.2 Área de Texto para Archivos de Entrada
 
 Debajo del menú, a la izquierda de la ventana, hay un cuadro de texto de tamaño considerable. Aquí es donde se mostrará el contenido del archivo de texto que abras. También puedes escribir o modificar el contenido manualmente.
+
+![Gráfico de Análisis Léxico](entrada.jpg)
 
 **Pasos**:
 1. Selecciona `Abrir` en el menú principal.
@@ -54,10 +60,12 @@ Debajo del menú, a la izquierda de la ventana, hay un cuadro de texto de tamañ
 
 A la derecha del área de texto, encontrarás un botón etiquetado como **Análisis**. Este botón ejecuta el proceso de análisis léxico.
 
+![Gráfico de Análisis Léxico](boton.jpg)
+
 **Pasos**:
 1. Asegúrate de que el archivo de entrada esté cargado o el texto esté escrito en el área de texto izquierda.
 2. Haz clic en el botón **Análisis**. Esto ejecutará el código Fortran que procesará el contenido del archivo o texto.
-3. Una vez finalizado, el programa mostrará una imagen (`graph.png`) generada en el panel de la derecha.
+3. Una vez finalizado, el programa mostrará una imagen (`imagen.jpg`) generada en el panel de la derecha.
 
 #### 2.4 Visualización de la Imagen
 
@@ -67,6 +75,8 @@ Una vez que el análisis léxico se complete, la imagen generada aparecerá en e
 1. Asegúrate de haber presionado el botón **Análisis**.
 2. El programa cargará y mostrará automáticamente la imagen `graph.png` que fue generada como resultado del análisis. La imagen se ajustará automáticamente al espacio disponible.
 
+![Gráfico de Análisis Léxico](imagen.jpg)
+
 #### 2.5 Detalles del País Seleccionado
 
 Debajo de la imagen, verás dos etiquetas que mostrarán información relacionada con el país que haya sido seleccionado durante el análisis.
@@ -74,6 +84,8 @@ Debajo de la imagen, verás dos etiquetas que mostrarán información relacionad
 **Pasos**:
 1. Selecciona el país desde los datos presentados en el análisis.
 2. Los detalles del país seleccionado se mostrarán automáticamente en las etiquetas y el cuadro de texto a la derecha.
+
+![Gráfico de Análisis Léxico](pais.jpg)
 
 ### 3. Guardar Cambios
 

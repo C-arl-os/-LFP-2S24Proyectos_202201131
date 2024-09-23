@@ -61,11 +61,11 @@ program analizador_lexico
 
     !caracter para el graphiz
     character(len=30) :: nombregrafica,axuxiliar 
-    logical :: validarnombre
+    logical :: validarname
     character(len=50) :: nombrecontinente
     character(len=1000) :: nombrepais
     logical :: validarcontinente, agregarcontinente
-    logical :: validarpais,agregarpaisContinete, acceso
+    logical :: validamoslospaises,agregarpaisContinete, acceso
 
     
 
@@ -98,7 +98,6 @@ program analizador_lexico
     M = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
     N = ['1','2','3','4','5','6','7','8','9','0']
 
-    !guardamos en tokensaprobadoslexema las palabras reservadas
     tokensaprobadoslexema(1)%LEXEMATODO = 'grafica'
     tokensaprobadoslexema(2)%LEXEMATODO = 'nombre'
     tokensaprobadoslexema(3)%LEXEMATODO = 'continente'
@@ -125,6 +124,13 @@ program analizador_lexico
     LECTURADELINEA = 1
     numErrores = 0
     numToken = 0
+
+     ! validar saturacion
+    validarsaturacion = '' !aguarda los numero concatenadios
+    aguardarsaturacion ='' !el que valida si viene porcentajesaturaciontaje
+    porcentajesaturacion = .FALSE.    !cierra y abre la lectura
+
+
     num_reservadas = 0
     cadena = .FALSE.
     porcentajesaturaciontaje = .FALSE.
@@ -132,19 +138,20 @@ program analizador_lexico
     ! :::::::::: para generara el graphiz
     acceso = .FALSE.
     nombregrafica = ''
-    validarnombre = .TRUE. 
-    validarpais = .FALSE.
+    validarname = .TRUE. 
+    validamoslospaises = .FALSE.
     validarcontinente = .FALSE.
+
+
+
+    
     nombrecontinente =''
     agregarcontinente = .FALSE.
     agregarpaisContinete = .FALSE.
     graf = ''
     nombrepais = ''
     axuxiliar = ''
-    ! validar saturacion
-    validarsaturacion = '' !aguarda los numero concatenadios
-    aguardarsaturacion ='' !el que valida si viene porcentajesaturaciontaje
-    porcentajesaturacion = .FALSE.    !cierra y abre la lectura
+   
 
     len = len_trim(contenido) 
 
@@ -358,7 +365,7 @@ program analizador_lexico
                         end if
                         nombrecontinente =''
                         validarcontinente = .TRUE.
-                        validarpais = .FALSE.  !solo para el pais
+                        validamoslospaises = .FALSE.  !solo para el pais
                         acceso = .FALSE.  !solo para el pais
 
 
@@ -369,7 +376,7 @@ program analizador_lexico
                 else if (acceso) then
                         if ('nombre' == trim(tkn)) then
                             validarcontinente = .FALSE.
-                            validarpais = .TRUE.
+                            validamoslospaises = .TRUE.
                             axuxiliar = 'pais'
                         else if('saturacion' == trim(tkn)) then
                             aguardarsaturacion = 'saturacion'
@@ -467,9 +474,9 @@ program analizador_lexico
                         estado = 0  ! agregar a tabla de tokens el tkn y el char
                         cadena = .FALSE.
                         !se valida la variable de la grafica el nombre una vez
-                        validarnombre = .FALSE.  !validar nombre de graphizn
+                        validarname = .FALSE.  !validar nombre de graphizn
 
-                        validarpais = .FALSE.
+                        validamoslospaises = .FALSE.
                         if (axuxiliar == 'continente') then 
                             agregarcontinente = .TRUE.  !aqui activa el primer if 
                         elseif (axuxiliar == 'pais') then
@@ -482,7 +489,7 @@ program analizador_lexico
                         tkn = trim(tkn) // char
                         !name = trim(name) // char
                         ! validamos una vez el nombre
-                        if (validarnombre) then  !validar nombre de grafiz 
+                        if (validarname) then  !validar nombre de grafiz 
                             nombregrafica = trim(nombregrafica) // char
                         
                         end if 
@@ -490,7 +497,7 @@ program analizador_lexico
                             nombrecontinente = trim(nombrecontinente) // char !concatenar el nomre continente
 
                         end if
-                        if (validarpais) then    !concatena el nombre
+                        if (validamoslospaises) then    !concatena el nombre
                             nombrepais = trim(nombrepais) // char
                         end if
                         if(aguardarsaturacion == 'saturacion') then
@@ -504,7 +511,7 @@ program analizador_lexico
                             nombrecontinente = trim(nombrecontinente) // char !concatenar el nomre continente
 
                         end if
-                        if (validarpais) then    !concatena el nombre
+                        if (validamoslospaises) then    !concatena el nombre
                             nombrepais = trim(nombrepais) // char
                         end if
                         if(aguardarsaturacion == 'saturacion') then
@@ -572,7 +579,6 @@ program analizador_lexico
                     end if
                     j = j + 1
                 end do
-                ! Guardar valores en tokens_reservadas
                 num_reservadas = num_reservadas + 1
                 tok(num_reservadas)%nombre = nombre_valor
                 tok(num_reservadas)%poblacion = poblacion_valor
@@ -607,7 +613,7 @@ program analizador_lexico
         print *,numErrores
     else
         call generar_html_tokens(numToken, tokens)
-        call generate_graphviz(graf)
+        call generar_graphiz_analizador(graf)
         print *,0
     end if
 
@@ -661,7 +667,7 @@ subroutine Generar_los_Errores(numErrores, errores)
     end if
     
 end subroutine Generar_los_Errores
-subroutine generate_graphviz(graf)
+subroutine generar_graphiz_analizador(graf)
     implicit none
     character(len=*), intent(in) :: graf  ! Recibe la estructura del gráfico como argumento
     integer :: ios
@@ -678,7 +684,7 @@ subroutine generate_graphviz(graf)
     comando = "dot -Tpng graph.dot -o graph.png"
     call system(comando)
 
-end subroutine generate_graphviz
+end subroutine generar_graphiz_analizador
 
 subroutine generar_html_tokens(numToken, tokens)
     implicit none
