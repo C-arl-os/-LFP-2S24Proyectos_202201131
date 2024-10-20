@@ -308,13 +308,12 @@ condiciones en el bucle principal y las
 funciones de generación de gráfico
 
 ## ARBOL
-![Gráfico de Análisis Léxico](arbol.jpg)
+![Gráfico de Análisis Léxico](dia.jpeg)
 
 ## FUNCIONAMIENTO Y AFD
 
-![Gráfico de Análisis Léxico](FUNCION.jpg)
-![Gráfico de Análisis Léxico](AFD.jpg)
+![Gráfico de Análisis Léxico](LEXICO.jpg)
 
-## TABLAS 
-![Gráfico de Análisis Léxico](TABLA1.jpg)
-![Gráfico de Análisis Léxico](tabla2.jpg)
+
+## AFD
+![Gráfico de Análisis Léxico](AFD.jpg)

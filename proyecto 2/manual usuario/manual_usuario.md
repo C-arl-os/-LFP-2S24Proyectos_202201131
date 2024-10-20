@@ -48,7 +48,7 @@ Presiona este botón para iniciar el análisis del código ingresado.
 En esta sección se mostrará el resultado del análisis. Si el análisis se realiza con éxito, se mostrarán los tokens generados. En caso de errores, se mostrará un mensaje indicando el problema.
 
 
-![Gráfico de Análisis Léxico](entrada.jpg)
+
 
 **Pasos**:
 1. Selecciona `Abrir` en el menú principal.
@@ -59,12 +59,12 @@ En esta sección se mostrará el resultado del análisis. Si el análisis se rea
 
 A la derecha del área de texto, encontrarás un botón etiquetado como **Análisis**. Este botón ejecuta el proceso de análisis léxico.
 
-![Gráfico de Análisis Léxico](boton.jpg)
+
 
 **Pasos**:
 1. Asegúrate de que el archivo de entrada esté cargado o el texto esté escrito en el área de texto izquierda.
 2. Haz clic en el botón **Análisis**. Esto ejecutará el código Fortran que procesará el contenido del archivo o texto.
-3. Una vez finalizado, el programa mostrará una imagen (`imagen.jpg`) generada en el panel de la derecha.
+
 
 #### 2.4 Visualización de la Imagen
 
@@ -72,19 +72,12 @@ Una vez que el análisis léxico se complete, la imagen generada aparecerá en e
 
 **Pasos**:
 1. Asegúrate de haber presionado el botón **Análisis**.
-2. El programa cargará y mostrará automáticamente la imagen `graph.png` que fue generada como resultado del análisis. La imagen se ajustará automáticamente al espacio disponible.
 
-![Gráfico de Análisis Léxico](imagen.jpg)
 
-#### 2.5 Detalles del País Seleccionado
 
-Debajo de la imagen, verás dos etiquetas que mostrarán información relacionada con el país que haya sido seleccionado durante el análisis.
 
-**Pasos**:
-1. Selecciona el país desde los datos presentados en el análisis.
-2. Los detalles del país seleccionado se mostrarán automáticamente en las etiquetas y el cuadro de texto a la derecha.
 
-![Gráfico de Análisis Léxico](pais.jpg)
+
 
 ### 3. Guardar Cambios
 
@@ -109,19 +102,18 @@ Para cerrar la aplicación, selecciona la opción `Salir` en el menú principal 
 
 ## Solución de Problemas
 
-### Problema: La Imagen no se Muestra
 
-- Asegúrate de que el archivo `graph.png` fue generado correctamente por el programa Fortran.
-- Verifica que el archivo se encuentre en la misma carpeta que el script `main.py`.
-- Si estás en un entorno de Linux o Mac, revisa los permisos de ejecución del archivo `main.exe` generado por Fortran.
+### Tabla de Tokens
 
-### Problema: El Código Fortran No se Ejecuta
+Esta tabla se mostrará al presionar el botón "Ver Tokens". La tabla contiene las siguientes columnas:
 
-- Asegúrate de que tienes instalado **gfortran** y que se encuentra correctamente en tu variable `PATH`.
-- Verifica que el archivo Fortran (`main.f90`) esté en la misma carpeta que el script de Python.
+- Número de fila: Indica el número de línea en la que se encontró el token.
+- Lexema: Representa la secuencia de caracteres del token.
+- Tipo: Indica el tipo de token identificado (por ejemplo, palabra clave, identificador, operador).
+- Fila: Indica la fila en la que se encontró el token en el código original.
+- Columna: Indica la columna en la que se encontró el token en el código original.-
 
----
-
+![Gráfico de Análisis Léxico](imagen4.jpg)
 ## Conclusión
 
 Este programa combina Python y Fortran para realizar un análisis léxico a través de una interfaz gráfica amigable. Sigue los pasos descritos en este manual para cargar archivos, ejecutar el análisis y guardar los resultados de manera eficiente.
