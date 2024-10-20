@@ -595,7 +595,7 @@ program analizador_lexico
 
     ! Iterar sobre la lista tokens_reservadas
     do i = 1, num_reservadas
-        ! Compara el valor de saturacion de cada elemento de la lista tokens_reservadas
+        ! Compara el valor d
         if (tok(i)%saturacion < menor_saturacion) then
             ! Si el valor de saturacion es menor, actualiza menor_saturacion y pais_con_menor_saturacion
             menor_saturacion = tok(i)%saturacion
@@ -636,7 +636,7 @@ subroutine Generar_los_Errores(numErrores, errores)
 
     if (numErrores > 0) then
         ! Abrir el archivo para escribir
-        open(unit=file_unit, file="TOKENNOVALIDOS.html", status="replace", action="write", iostat=ios)
+        open(unit=file_unit, file="Validacion.html", status="replace", action="write", iostat=ios)
         if (ios /= 0) then
 
         else
@@ -702,7 +702,7 @@ subroutine generar_html_tokens(numToken, tokens)
 
     if (numErrores == 0) then
         ! Abrir el archivo para escribir
-        open(unit=file_unit, file="TOKENSVALIDOS.html", status="replace", action="write", iostat=ios)
+        open(unit=file_unit, file="Validacion.html", status="replace", action="write", iostat=ios)
         if (ios /= 0) then
             
         else
